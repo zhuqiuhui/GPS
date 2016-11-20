@@ -12,7 +12,7 @@ StayPoinDistThd = 200  # stay points distance threshold
 vThreshold = 1.6  # m/s
 aThreshold = 0.8  # m/s2
 changeAngle = 19  # change angle
-changeRate = 0.5  # change rate
+changeRate = 0.65  # change rate
 
 
 def addMode(DBPath, i):
@@ -92,6 +92,7 @@ def addAccLabel(DBPath, i):
     pre = allPointRecords[0]
     for index in range(len(allPointRecords)):
         cur = allPointRecords[index]
+        print('point id: ' + str(cur[0]))
         if cur[2] == -1:
             parameters.append((-1, 'none', cur[0]))
             pre = cur
@@ -222,7 +223,7 @@ def addStayPoint(DBPath, i):
                         stayPointSet.append((temp[0], temp[2], temp[3]))
                         sIndex += 1
                     #  output the stay points set
-                    print(stayPointSet)
+                    # print(stayPointSet)
                     """
                         check stay points set 1,
                         abandon the case of traffic congestion
@@ -231,6 +232,7 @@ def addStayPoint(DBPath, i):
                                                          changeAngle,
                                                          changeRate)
                     if isTraCong == 1:
+                        stayPointSet.clear()
                         break
                     """
                         check stay points set 2 (noise filtering),
@@ -244,13 +246,19 @@ def addStayPoint(DBPath, i):
                     """
                     for item in resPointList:
                         parameters.append((item[3], item[0]))
-                    print("resPointList:")
-                    print(resPointList)
+                    print("resPointList's size:" + str(len(resPointList)))
+                    # print(resPointList)
+                    func.writeFile('stay_point_set_result.txt',
+                                   "resPointList's size: " + str(len(resPointList)))
+                    func.writeFile('stay_point_set_result.txt',
+                                   str(resPointList))
+                    func.writeFile('stay_point_set_result.txt',
+                                   "\n\n")
                     updateSql = "update GPS_points_" + str(i) + \
                         " set is_stay_point = 1, is_deleted = ? where id = ?"
-                    DBUtil.update(conn, updateSql, parameters)
-                    print("update stay points into database done!")
+                    # DBUtil.update(conn, updateSql, parameters)
                     #  clear the stay points set
+                    resPointList.clear()
                     stayPointSet.clear()
                     parameters.clear()
                     index = j
@@ -278,18 +286,18 @@ def main():
         step 1
         add column value of Distance and velocity to the table GPS_points_i
     """
-    # addDistVelocity(DBPath, 1)
+    # addDistVelocity(DBPath, 2)
     """
         step 2
         add column value of Accelermeter and point_label to the
         table GPS_points_i
     """
-    addAccLabel(DBPath, 3)
+    # addAccLabel(DBPath, 2)
     """
         step 3
         add column value of is_stay_point to the table GPS_points_i
     """
-    # addStayPoint(DBPath, 3)
+    addStayPoint(DBPath, 1)
 
 
 if __name__ == '__main__':

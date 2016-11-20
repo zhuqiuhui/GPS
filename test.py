@@ -9,6 +9,12 @@ def getXY():
     return x, y
 
 
+def writeFile(path, content):
+    fileObj = open(path, 'a+')
+    fileObj.write(content)
+    fileObj.close()
+
+
 def main():
     # mu = 0  # mean
     # sigma = 1  # standard deviation
@@ -52,9 +58,21 @@ def main():
     # pList.pop(len(pList)-1)
     # pList.pop(0)
     # print(pList)
-    pList = [(1, 2, 3), (4, 5, 6), (7, 8, 9)]
-    print(pList[-1])
-    print("%s records %s " % (len(pList), 9))
+    # pList = [(1, 2, 3), (4, 5, 6), (7, 8, 9)]
+    # # print(pList[-1])
+    # # print("%s records %s " % (len(pList), 9))
+    # writeFile('write.txt', "str(pList)" + "\n")
+    # writeFile('write.txt', str(pList))
+    # lineCuple = (1, 2, 2)
+    # lineCuple = lineCuple + (3)
+    # print(lineCuple)
+    # x = [[1, 2, 3], [4, 5, 6]]
+    # y = [(7, 8, 9), [33, 23,22]]
+    x = [[1, 2, 3]]
+    y = [[7, 8, 9]]
+    for i, j in zip(x, y):
+    	print(i)
+    	print(j)
 
 
 if __name__ == '__main__':

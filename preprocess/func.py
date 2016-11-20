@@ -133,8 +133,13 @@ def isTrafficCongestion(pointsList, changeAngle, changeRate):
         if degreeDiff >= changeAngle:
             chSP += 1
     print("the number of GPS points whose change angle is greater than thd:")
+    writeFile('stay_point_set_result.txt',
+              'the number of GPS points whose change angle is greater than thd:' +
+              str(chSP))
     print(chSP)
     print("total number of Stay point number:")
+    writeFile('stay_point_set_result.txt',
+              'total number of Stay point number:' + str(stlen))
     print(stlen)
     if chSP / stlen < changeRate:
         return 1
@@ -295,6 +300,19 @@ def noiseFilter(pointsList, thd):
                           pointsList[-1][2],
                           0))
     return resPoints
+
+
+def writeFile(path, content):
+    """
+    append content to the file of variable path
+
+    Args:
+         path: file path and file name
+         content: string type, you need to deliver string type
+    """
+    fileObj = open(path, 'a+')
+    fileObj.write(content + '\n')
+    fileObj.close()
 
 
 if __name__ == '__main__':
