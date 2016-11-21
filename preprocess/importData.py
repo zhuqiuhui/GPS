@@ -63,8 +63,9 @@ def main():
     # for i in range(1):
     # labelFile = commonPrefix + '/labels_' + str(3) + '.txt'
     # import_GPS_label(dbPath, labelFile, 3)
-    pointFile = commonPrefix + '/integration_' + str(2) + '.txt'
-    import_GPS_points(dbPath, pointFile, 2)
+    i = 12
+    pointFile = commonPrefix + '/integration_' + str(i) + '.txt'
+    import_GPS_points(dbPath, pointFile, i)
 
 
 if __name__ == '__main__':

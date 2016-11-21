@@ -55,7 +55,10 @@ def getDistance(latA, lonA, latB, lonB):
 
     pA = atan(rb / ra * tan(radLatA))
     pB = atan(rb / ra * tan(radLatB))
-    x = acos(sin(pA) * sin(pB) + cos(pA) * cos(pB) * cos(radLonA - radLonB))
+    temp = sin(pA) * sin(pB) + cos(pA) * cos(pB) * cos(radLonA - radLonB)
+    if temp < -1 or temp > 1:
+        return getDistance2(latA, lonA, latB, lonB)
+    x = acos(temp)
     c1 = (sin(x) - x) * (sin(pA) + sin(pB))**2 / cos(x / 2)**2
     if sin(x / 2) == 0:
         return getDistance2(latA, lonA, latB, lonB)
@@ -133,13 +136,13 @@ def isTrafficCongestion(pointsList, changeAngle, changeRate):
         if degreeDiff >= changeAngle:
             chSP += 1
     print("the number of GPS points whose change angle is greater than thd:")
-    writeFile('stay_point_set_result.txt',
-              'the number of GPS points whose change angle is greater than thd:' +
-              str(chSP))
+    # writeFile('stay_point_set_result.txt',
+    #           'the number of GPS points whose change angle is greater than thd:' +
+    #           str(chSP))
     print(chSP)
     print("total number of Stay point number:")
-    writeFile('stay_point_set_result.txt',
-              'total number of Stay point number:' + str(stlen))
+    # writeFile('stay_point_set_result.txt',
+    #           'total number of Stay point number:' + str(stlen))
     print(stlen)
     if chSP / stlen < changeRate:
         return 1

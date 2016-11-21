@@ -12,7 +12,7 @@ StayPoinDistThd = 200  # stay points distance threshold
 vThreshold = 1.6  # m/s
 aThreshold = 0.8  # m/s2
 changeAngle = 19  # change angle
-changeRate = 0.65  # change rate
+changeRate = 0.50  # change rate
 
 
 def addMode(DBPath, i):
@@ -246,17 +246,17 @@ def addStayPoint(DBPath, i):
                     """
                     for item in resPointList:
                         parameters.append((item[3], item[0]))
-                    print("resPointList's size:" + str(len(resPointList)))
+                    # print("resPointList's size:" + str(len(resPointList)))
                     # print(resPointList)
-                    func.writeFile('stay_point_set_result.txt',
-                                   "resPointList's size: " + str(len(resPointList)))
-                    func.writeFile('stay_point_set_result.txt',
-                                   str(resPointList))
-                    func.writeFile('stay_point_set_result.txt',
-                                   "\n\n")
+                    # func.writeFile('stay_point_set_result.txt',
+                    #                "resPointList's size: " + str(len(resPointList)))
+                    # func.writeFile('stay_point_set_result.txt',
+                    #                str(resPointList))
+                    # func.writeFile('stay_point_set_result.txt',
+                    #                "\n\n")
                     updateSql = "update GPS_points_" + str(i) + \
                         " set is_stay_point = 1, is_deleted = ? where id = ?"
-                    # DBUtil.update(conn, updateSql, parameters)
+                    DBUtil.update(conn, updateSql, parameters)
                     #  clear the stay points set
                     resPointList.clear()
                     stayPointSet.clear()
@@ -282,22 +282,23 @@ def addIsDeleted(DBPath, i):
 
 def main():
     DBPath = '../DB/GPS.db'
+    i = 2
     """
         step 1
         add column value of Distance and velocity to the table GPS_points_i
     """
-    # addDistVelocity(DBPath, 2)
+    # addDistVelocity(DBPath, i)
     """
         step 2
         add column value of Accelermeter and point_label to the
         table GPS_points_i
     """
-    # addAccLabel(DBPath, 2)
+    # addAccLabel(DBPath, i)
     """
         step 3
         add column value of is_stay_point to the table GPS_points_i
     """
-    addStayPoint(DBPath, 1)
+    addStayPoint(DBPath, i)
 
 
 if __name__ == '__main__':
