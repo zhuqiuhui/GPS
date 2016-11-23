@@ -192,10 +192,16 @@ def isNormalDistr(pointsList):
         cur = pointsList[index]
         next = pointsList[index + 1]
         dist = getDistance(cur[1], cur[2], next[1], next[2])
+        dist = round(dist)
         distList.append(dist)
+        index += 1
     distArray = np.array(distList)
     test_stat = stats.kstest(distArray, 'norm')
     pValue = test_stat.pvalue
+    print('distance:')
+    print(distArray)
+    print('______________________________________')
+    print(pValue)
     if pValue > 0.05:
         # showNormalDistr(distArray)
         return 1
@@ -316,6 +322,65 @@ def writeFile(path, content):
     fileObj = open(path, 'a+')
     fileObj.write(content + '\n')
     fileObj.close()
+
+
+def readFile(path):
+    """
+    read content from file
+    Returns:
+           the content of file
+    """
+    fileObj = open(path, 'r')
+    try:
+        allLines = fileObj.readlines()
+    finally:
+        fileObj.close()
+    return allLines
+
+
+def getClusNum(compList):
+    """
+       get number cluster
+       Args:
+            compList: such as [(1, 0, 1), (2, 1, 0)...]
+       Returns:
+            total cluster number of column 2
+            total cluster number of column 3
+    """
+    sum1 = 0
+    sum2 = 0
+    index = 1
+    pre = compList[0]
+    if pre[1] == 1:
+        sum1 = 1
+    if pre[2] == 1:
+        sum2 = 1
+    lenCompList = len(compList)
+    while index < lenCompList:
+        cur = compList[index]
+        if pre[1] == 0 and cur[1] == 1:
+            sum1 += 1
+        if pre[2] == 0 and cur[2] == 1:
+            sum2 += 1
+        index += 1
+        pre = cur
+    return sum1, sum2
+
+
+def isNotSame(comp1, comp2):
+    """
+    compare if comp1 is same as comp2
+    Args:
+        comp1:
+        comp2:
+    Returns:
+        1: comp1 is not same as comp2
+        0: comp1 is same as comp2
+    """
+    if comp1 == comp2:
+        return 0
+    else:
+        return 1
 
 
 if __name__ == '__main__':

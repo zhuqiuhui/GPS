@@ -7,12 +7,17 @@ Table: GPS_points_1
 Table: GPS_label_1
 """
 TimeThreshold = 1200  # 1200s or 20min
-StayPoinTiThd = 1800  # stay points time threshold
-StayPoinDistThd = 200  # stay points distance threshold
+StayPoinTiThd = 200  # stay points time threshold
+StayPoinDistThd = 50  # stay points distance threshold
 vThreshold = 1.6  # m/s
 aThreshold = 0.8  # m/s2
 changeAngle = 19  # change angle
 changeRate = 0.50  # change rate
+"""
+    we find ransition point if its in the distance of
+    actual transition point.
+"""
+transiPointDist = 150
 
 
 def addMode(DBPath, i):
@@ -228,12 +233,12 @@ def addStayPoint(DBPath, i):
                         check stay points set 1,
                         abandon the case of traffic congestion
                     """
-                    isTraCong = func.isTrafficCongestion(stayPointSet,
-                                                         changeAngle,
-                                                         changeRate)
-                    if isTraCong == 1:
-                        stayPointSet.clear()
-                        break
+                    # isTraCong = func.isTrafficCongestion(stayPointSet,
+                    #                                      changeAngle,
+                    #                                      changeRate)
+                    # if isTraCong == 1:
+                    #     stayPointSet.clear()
+                    #     break
                     """
                         check stay points set 2 (noise filtering),
                         get content:
@@ -248,15 +253,15 @@ def addStayPoint(DBPath, i):
                         parameters.append((item[3], item[0]))
                     # print("resPointList's size:" + str(len(resPointList)))
                     # print(resPointList)
-                    # func.writeFile('stay_point_set_result.txt',
-                    #                "resPointList's size: " + str(len(resPointList)))
-                    # func.writeFile('stay_point_set_result.txt',
-                    #                str(resPointList))
-                    # func.writeFile('stay_point_set_result.txt',
-                    #                "\n\n")
+                    func.writeFile('stay_point_set_result.txt',
+                                   "resPointList's size: " + str(len(resPointList)))
+                    func.writeFile('stay_point_set_result.txt',
+                                   str(resPointList))
+                    func.writeFile('stay_point_set_result.txt',
+                                   "\n\n")
                     updateSql = "update GPS_points_" + str(i) + \
                         " set is_stay_point = 1, is_deleted = ? where id = ?"
-                    DBUtil.update(conn, updateSql, parameters)
+                    # DBUtil.update(conn, updateSql, parameters)
                     #  clear the stay points set
                     resPointList.clear()
                     stayPointSet.clear()
@@ -273,16 +278,126 @@ def addStayPoint(DBPath, i):
 
 
 def addTrueCP(DBPath, i):
-    pass
+    """
+       if the distance between an normal GPS points and actual
+       transition points is within 150 m, we regard the GPS point
+       is transition point.
+    """
+    conn = DBUtil.get_conn(DBPath)
+    # find all points
+    fetchAllPointSql = 'select id,lat,lon,accelerometer,mode,time_stamp ' + \
+                       'from GPS_points_' + str(i)
+    allPointRecords = DBUtil.fetchAll(conn, fetchAllPointSql)
+    if allPointRecords is None:
+        print('fetch point set Fail!')
+        return
+    """
+    records: type list-> [(1, 39.9752333333333, 116.330066666667, 'none').....]
+    id: 0
+    lat: 1
+    lon: 2
+    accelerometer: 3
+    mode: 4
+    time_stamp: 5
+    """
+    parameters = []
+    recordLen = len(allPointRecords)
+    pre = allPointRecords[0]
+    index = 1
+    while index < recordLen:
+        cur = allPointRecords[index]
+        if cur[3] == -1:
+            pre = cur
+            index += 1
+            continue
+        tempTime = func.getTimeInterval(pre[5], cur[5])
+        if cur[4] != pre[4] and tempTime < TimeThreshold:
+            parameters.append((cur[0], cur[0]))
+            #  forward
+            forStart = index - 1
+            while forStart >= 0:
+                forward = allPointRecords[forStart]
+                tempDist = func.getDistance(cur[1], cur[2],
+                                            forward[1], forward[2])
+                if tempDist > transiPointDist:
+                    break
+                parameters.append((forward[0], forward[0]))
+                forStart -= 1
+            #  afterward
+            aftStart = index + 1
+            while aftStart < recordLen:
+                aftward = allPointRecords[aftStart]
+                tempDist = func.getDistance(cur[1], cur[2],
+                                            aftward[1], aftward[2])
+                if tempDist > transiPointDist:
+                    break
+                parameters.append((aftward[0], aftward[0]))
+                aftStart += 1
+        # update into database
+        if len(parameters) != 0:
+            print(parameters)
+            updateSql = "update GPS_points_" + str(i) + \
+                " set is_true_tp = 1 where id = ? and id = ?"
+            DBUtil.update(conn, updateSql, parameters)
+            parameters.clear()
+        pre = cur
+        index += 1
+    DBUtil.closeDB(conn)
 
 
 def addIsDeleted(DBPath, i):
     pass
 
 
+def getStayPointPrecison(DBPath, i):
+    """
+       get stay point, calculate if the stay point is actual
+       transition point.
+
+       Returns:
+            recall and percision of stay point as transition point
+    """
+    conn = DBUtil.get_conn(DBPath)
+    # find all points
+    fetchAllPointSql = 'select id,is_stay_point,is_true_tp ' + \
+                       'from GPS_points_' + str(i)
+    allPointRecords = DBUtil.fetchAll(conn, fetchAllPointSql)
+    if allPointRecords is None:
+        print('fetch point set Fail!')
+        return
+    """
+    records: type list-> [(1, 0, 1).....]
+    (id, is_stay_point, is_true_cp)
+    id: 0
+    is_stay_point: 1
+    is_true_tp: 2
+    """
+    # print(allPointRecords)
+    # correct stay point number
+    spCorNum = 0
+    # total stay point number
+    sptotNum = 0
+    # total actual transition point
+    totalTP = 0
+    sptotNum, totalTP = func.getClusNum(allPointRecords)
+    f = 0
+    for item in allPointRecords:
+        if item[2] == 1:
+            if item[1] == 1 and f == 0:
+                # find
+                spCorNum += 1
+                f = 1
+        else:
+            f = 0
+    print('total stay point: ' + str(sptotNum))
+    print('total actual transition point: ' + str(totalTP))
+    print('total find transition point: ' + str(spCorNum))
+    DBUtil.closeDB(conn)
+
+
 def main():
     DBPath = '../DB/GPS.db'
-    i = 2
+    i = 1
     """
         step 1
         add column value of Distance and velocity to the table GPS_points_i
@@ -298,7 +413,18 @@ def main():
         step 3
         add column value of is_stay_point to the table GPS_points_i
     """
-    addStayPoint(DBPath, i)
+    # addStayPoint(DBPath, i)
+    """
+        step 4
+        add true transition point in the range of transiPointDist
+    """
+    addTrueCP(DBPath, i)
+    """
+        step 5
+        check how many stay points are found, and how many stay points
+        are actual transition points
+    """
+    # getStayPointPrecison(DBPath, i)
 
 
 if __name__ == '__main__':

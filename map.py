@@ -72,11 +72,11 @@ line1 = folium.PolyLine(
 map_osm.add_child(line1)
 
 # draw trajectory1（轨迹画出）
-point_lon = [36.9860, 36.9861, 36.9860, 36.9858, 36.9857, 36.9856, 36.9855]
-point_lat = [111.8217, 111.8213, 111.8211,
+point_lat = [36.9860, 36.9861, 36.9860, 36.9858, 36.9857, 36.9856, 36.9855]
+point_lon = [111.8217, 111.8213, 111.8211,
              111.8212, 111.8213, 111.8212, 111.8212]
 color_line = features.PolyLine(
-    list(zip(point_lon, point_lat)),
+    list(zip(point_lat, point_lon)),
     color='red',
     weight=2,
     popup='轨迹1')

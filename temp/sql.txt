@@ -1,0 +1,2 @@
+select count(*) from GPS_points_1 where id>=732708 and id<=733025
+
