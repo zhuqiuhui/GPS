@@ -162,14 +162,30 @@ def main():
     # print(sett)
     # temp1 = [(732708, 'none'), (732709, 'non-walk-point'),
     #          (732710, 'walk-point'), (732711, 'walk-point')]
+    # print(temp1[-1])
     # for label in temp1[0:3]:
     #     te = (label[0], 'test')
     #     temp1[1] = te
     # print(temp1)
-    p = []
-    p.append((2,))
-    p.append((4,))
-    print(p)
+    # p = []
+    # p.append((2,))
+    # p.append((4,))
+    # print(p)
+    # i = 9
+    # if i == 7:
+    #     print(i)
+    # else:
+    #     pass
+    # i = 1
+    # while i < 10:
+    #     if i > 6:
+    #         if i == 8:
+    #             i += 1
+    #             continue
+    #         print(i)
+    #     i += 1
+    #     print('<<<')
+    a = [1, 2, 3, 4]
 
 
 if __name__ == '__main__':

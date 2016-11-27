@@ -341,7 +341,7 @@ def readFile(path):
 def getClusNum(compList):
     """
        get number cluster
-       Args:
+       Args:            column  1  2  3
             compList: such as [(1, 0, 1), (2, 1, 0)...]
        Returns:
             total cluster number of column 2
@@ -365,6 +365,29 @@ def getClusNum(compList):
         index += 1
         pre = cur
     return sum1, sum2
+
+
+def getConsistCluster(compList):
+    """
+        get consistent cluster in list of compList
+
+        Args: compList, such as:
+          column  1  2  3
+                [(1, 0, 1).....]
+        Returns:
+              the consistent number of beween column 2 and column 3
+    """
+    consist = 0
+    f = 0
+    for item in compList:
+        if item[2] == 1:
+            if item[1] == 1 and f == 0:
+                # find
+                consist += 1
+                f = 1
+        else:
+            f = 0
+    return consist
 
 
 def isNotSame(comp1, comp2):
@@ -423,3 +446,27 @@ if __name__ == '__main__':
     #  output: 0.0853
     print(getDistance2(39.9660666666667, 116.352433333333,
                        39.9660666666667, 116.352434333333))
+
+    #  output: 1
+    compList = [(1, 1, 0),
+                (2, 0, 1),
+                (3, 1, 0),
+                (4, 1, 0),
+                (5, 1, 0),
+                (6, 1, 1),
+                (7, 0, 1),
+                (8, 1, 1),
+                (9, 1, 0)]
+    print(getConsistCluster(compList))
+
+    #  output: 2
+    compList = [(1, 1, 0),
+                (2, 1, 1),
+                (3, 1, 0),
+                (4, 1, 0),
+                (5, 1, 0),
+                (6, 1, 1),
+                (7, 0, 0),
+                (8, 1, 1),
+                (9, 1, 1)]
+    print(getConsistCluster(compList))

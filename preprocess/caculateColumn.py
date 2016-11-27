@@ -312,7 +312,7 @@ def addTrueCP(DBPath, i):
             continue
         tempTime = func.getTimeInterval(pre[5], cur[5])
         if cur[4] != pre[4] and tempTime < TimeThreshold:
-            parameters.append((cur[0], cur[0]))
+            parameters.append((cur[0],))
             #  forward
             forStart = index - 1
             while forStart >= 0:
@@ -321,7 +321,7 @@ def addTrueCP(DBPath, i):
                                             forward[1], forward[2])
                 if tempDist > transiPointDist:
                     break
-                parameters.append((forward[0], forward[0]))
+                parameters.append((forward[0],))
                 forStart -= 1
             #  afterward
             aftStart = index + 1
@@ -331,13 +331,13 @@ def addTrueCP(DBPath, i):
                                             aftward[1], aftward[2])
                 if tempDist > transiPointDist:
                     break
-                parameters.append((aftward[0], aftward[0]))
+                parameters.append((aftward[0],))
                 aftStart += 1
         # update into database
         if len(parameters) != 0:
             print(parameters)
             updateSql = "update GPS_points_" + str(i) + \
-                " set is_true_tp = 1 where id = ? and id = ?"
+                " set is_true_tp = 1 where id = ?"
             DBUtil.update(conn, updateSql, parameters)
             parameters.clear()
         pre = cur

@@ -52,7 +52,7 @@ def displayMapId(fromId, toId, DBPath, i):
 def main():
     DBPath = 'DB/GPS.db'
     i = 1
-    displayMapId(213, 449, DBPath, i)
+    displayMapId(73927, 87287, DBPath, i)
 
 
 if __name__ == '__main__':

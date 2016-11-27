@@ -4,7 +4,7 @@ import DBUtil
 N = 10  # contant value
 M = 8  # contant value
 pointNum = 21  # the least the point number of segment
-distInterval = 50  # combining short segment
+distInterval = 150  # combining short segment
 
 
 def labelSpec(DBPath, i):
@@ -34,6 +34,9 @@ def labelSpec(DBPath, i):
                 segment.append(cur)
             if len(segment) != 0:
                 print(segment)
+                if len(segment) < pointNum:
+                    index += 1
+                    continue
                 # process the segment
                 parameters = modifyPlointLab(segment)
                 # update the point_label into database
@@ -98,19 +101,20 @@ def combineSeg(DBPath, i):
     """
     conn = DBUtil.get_conn(DBPath)
     # find all points
-    fetchAllSql = 'select id,distance,is_predict_tp,is_true_tp ' + \
+    fetchAllSql = 'select id,distance,point_label,is_predict_tp,is_true_tp ' + \
         'from GPS_points_' + str(i)
     allRecords = DBUtil.fetchAll(conn, fetchAllSql)
     if allRecords is None:
         print('fetch point set Fail!')
         return
     """
-    records: type list-> [(1, 7.9227361133195, 1, 0).....]
+    records: type list-> [(1, 7.9227361133195, 'walk-point', 1, 0).....]
     (id, distance, is_predict_tp, is_true_tp)
     id: 0
     distance: 1
-    is_predict_tp: 2
-    is_true_tp: 3
+    point_label: 2
+    is_predict_tp: 3
+    is_true_tp: 4
     """
     index = 0
     segment = []
@@ -119,22 +123,37 @@ def combineSeg(DBPath, i):
     correctTP = 0
     while index < len(allRecords):
         cur = allRecords[index]
-        if cur[1] == 'none' or index == len(allRecords) - 1:
+        if cur[2] == 'none' or index == len(allRecords) - 1:
             if index == len(allRecords) - 1:
                 segment.append(cur)
             if len(segment) != 0:
-                print(segment)
+                if len(segment) < 21:
+                    index += 1
+                    segment.append(cur)
+                    continue
+                # print(segment)
                 # combining the short distance
-                parameters = getSuddenChangePointId(segment)
+                parameters, tTP, tFindTP, corrTP = mergeSeg(segment)
+                print('start id: ' + str(segment[0][0]) + ' end id: ' +
+                      str(segment[-1][0]) + ' trueTP: ' + str(tTP) +
+                      ' findTP:' + str(tFindTP) + ' correctTP: ' +
+                      str(corrTP))
+                totalTP += tTP
+                totalFindTP += tFindTP
+                correctTP += corrTP
                 # update the point_label into database
                 updateSql = 'update GPS_points_' + str(i) + \
-                    ' set is_predict_tp=1 where id=?'
-                if len(parameters) != 0:
-                    DBUtil.update(conn, updateSql, parameters)
+                    ' set is_predict_tp=? where id=?'
+                # DBUtil.update(conn, updateSql, parameters)
                 parameters.clear()
                 segment.clear()
         segment.append(cur)
         index += 1
+    print('________________________________________________')
+    print('total actual transition points: ' + str(totalTP))
+    print('total find transition points: ' + str(totalFindTP))
+    print('total correct transition points: ' + str(correctTP))
+    print('________________________________________________')
     DBUtil.closeDB(conn)
 
 
@@ -145,20 +164,60 @@ def mergeSeg(segment):
         second, return the number of found point
 
         Args: segment, such as:
-            [(1, 7.9227361133195, 1, 0).....]
-                    (id, distance, is_predict_tp, is_true_tp)
+            [(1, 7.9227361133195, 'walk-point', 1, 0).....]
+                    (id, distance, point_label, is_predict_tp, is_true_tp)
                     id: 0
                     distance: 1
-                    is_predict_tp: 2
-                    is_true_tp: 3
+                    point_label: 2
+                    is_predict_tp: 3
+                    is_true_tp: 4
             Returns:
-                segment:
-                       [(1, 7.9227361133195, 1, 0).....]
-                    (id, distance, is_predict_tp, is_true_tp)
+                segmentId:
+                       [(1, 1).....]
+                    (is_predict_tp, id)
                 totalTP: total actual transition points
                 totalFindTP: total found transition points
                 correctTP: found transition points which are correct
     """
+    #  combing the short distance
+    index = 0
+    segLen = len(segment)
+    dist = 0
+    startIndex = 0
+    while index < segLen:
+        cur = segment[index]
+        dist += cur[1]
+        if cur[3] == 1:
+            if dist <= distInterval:
+                # combine with previous and posterior segment
+                # te1 = (segment[startIndex][0], segment[startIndex][1],
+                #        segment[startIndex][2], 0, segment[startIndex][4])
+                # segment[startIndex] = te1
+                # te2 = (segment[index][0], segment[index][1],
+                #        segment[index][2], 0, segment[index][4])
+                # segment[index] = te2
+                # combine with previous segment
+                # te3 = (segment[startIndex][0], segment[startIndex][1],
+                #        segment[startIndex][2], 0, segment[startIndex][4])
+                # segment[startIndex] = te3
+                # combine with posterior segment
+                te4 = (segment[index][0], segment[index][1],
+                       segment[index][2], 0, segment[index][4])
+                segment[index] = te4
+            startIndex = index
+            dist = 0
+        else:
+            pass
+        index += 1
+    #  seg: [(id, is_predict_tp, is_true_tp)...]
+    seg = []
+    segmentId = []
+    for se in segment:
+        seg.append((se[0], se[3], se[4]))
+        segmentId.append((se[3], se[0]))
+    totalFindTP, totalTP = func.getClusNum(seg)
+    correctTP = func.getConsistCluster(seg)
+    return segmentId, totalTP, totalFindTP, correctTP
 
 
 def getSuddenChangePointId(segment):
@@ -196,8 +255,10 @@ def getSuddenChangePointId(segment):
                     rcountNonWalk += 1
             if lcountWalk >= M and rcountNonWalk >= M:
                 parameters.append((segment[index][0],))
+                index += N
             if lcountNonWalk >= M and rcountWalk >= M:
                 parameters.append((segment[index][0],))
+                index += N
         index += 1
     return parameters
 
@@ -388,13 +449,16 @@ def main():
     """
         step 2: modification of label specification
     """
-    labelSpec(DBPath, i)
+    # labelSpec(DBPath, i)
     """
         step 3: get candidate transition point set
     """
+    # getTranPoint(DBPath, i)
     """
-        step 4: get final transition point set
+        step 4: merge the candidate point according to the limitation of
+        short distance.
     """
+    combineSeg(DBPath, i)
     """
         test the function
     """
