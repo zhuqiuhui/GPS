@@ -439,13 +439,13 @@ def testModifyPlointLab():
 
 def main():
     DBPath = '../DB/GPS.db'
-    i = 2
+    i = 1
     """
         step 1: show the segment that from startId to toId.
                 show information, such as:
                  start id: 1742 end id: 2250 num: 509
     """
-    # getStartEndPoint(DBPath, i)
+    getStartEndPoint(DBPath, i)
     """
         step 2: modification of label specification
     """
@@ -458,7 +458,7 @@ def main():
         step 4: merge the candidate point according to the limitation of
         short distance.
     """
-    combineSeg(DBPath, i)
+    # combineSeg(DBPath, i)
     """
         test the function
     """

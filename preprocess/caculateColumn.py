@@ -97,7 +97,7 @@ def addAccLabel(DBPath, i):
     pre = allPointRecords[0]
     for index in range(len(allPointRecords)):
         cur = allPointRecords[index]
-        print('point id: ' + str(cur[0]))
+        # print('point id: ' + str(cur[0]))
         if cur[2] == -1:
             parameters.append((-1, 'none', cur[0]))
             pre = cur
@@ -163,7 +163,7 @@ def addDistVelocity(DBPath, i):
             parameters.append((-1, -1, cur[0]))
             pre = cur
             continue
-        print("points id: " + str(cur[0]))
+        # print("points id: " + str(cur[0]))
         dist = func.getDistance(pre[2], pre[3], cur[2], cur[3])
         lineTuple = (dist, dist / timeInterval, cur[0])
         parameters.append(lineTuple)
@@ -398,6 +398,11 @@ def getStayPointPrecison(DBPath, i):
 def main():
     DBPath = '../DB/GPS.db'
     i = 1
+    while i <= 32:
+        addDistVelocity(DBPath, i)
+        addAccLabel(DBPath, i)
+        print('process ' + str(i) + ' done!')
+        i += 1
     """
         step 1
         add column value of Distance and velocity to the table GPS_points_i
@@ -418,7 +423,7 @@ def main():
         step 4
         add true transition point in the range of transiPointDist
     """
-    addTrueCP(DBPath, i)
+    # addTrueCP(DBPath, i)
     """
         step 5
         check how many stay points are found, and how many stay points
