@@ -47,7 +47,13 @@ def getClusNum(compList):
 
 
 def main():
-    print(np.linspace(0, 10, 6))
+    # print(np.linspace(0, 10, 6))
+    # data = pd.DataFrame({'A': [1, 2, 3, 4, 5, 6, 7, 8],
+    #                      'B': [12, 12, 13, 14, 15, 16, 17, 0]})
+    # s = 'A'
+    # print(data[s])
+    ma = np.array([[1, 2, 4], [1, 1, 1]])
+    print(np.sum(ma))
 
 
 if __name__ == '__main__':

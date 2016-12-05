@@ -1,1 +1,7 @@
-'distance', '_85thV', 'MaxV1', 'MaxV2', 'MedianV', 'MinV', 'MeanV', 'Ev', 'Dv', 'HVR', 'MVR', 'LVR', '_85thA', 'MaxA1', 'MaxA2', 'MedianA', 'MinA', 'MeanA', 'Ea', 'Da', 'HAR', 'MAR', 'LAR', 'TS', 'ACR', 'BSR', 'ACP', 'HCR', 'SR', 'VCR'
+           car   bus bike walk train plane
+car:       128   55   1    12   18     0
+bus:        47   383  6    44    7     0
+bike:       3    19  343   45    1     0
+walk:       2    14   9   1096   6     0
+train:      9     6   0    6     55    0
+plane:      0     0   0    0     0     0
