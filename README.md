@@ -1,11 +1,12 @@
 GPS trajectory and transportation modes inference（GPS轨迹分析及交通出行工具推断）
 
 # 学术论文：
-**[1] 第一作者：Transportation Modes Behaviour Analysis Based on Raw GPS Dataset, International Journal of Embedded Systems. **
 
-**[2] 第一作者：Identifying Transportation Modes from Raw GPS Data. International Conference of Young Computer Scientists, Engineers and Educators. Springer Singapore, 2016: pp.395-409. **、
+[1] 第一作者：Transportation Modes Behaviour Analysis Based on Raw GPS Dataset, International Journal of Embedded Systems. 
 
-**[3] 第二作者：An Enhanced Transportation Mode Detection Method Based on GPS Data. International Conference of Pioneering Computer Scientists, Engineers and Educators. Springer, Singapore, 2017: pp.605-620. **
+[2] 第一作者：Identifying Transportation Modes from Raw GPS Data. International Conference of Young Computer Scientists, Engineers and Educators. Springer Singapore, 2016: pp.395-409. 
+
+[3] 第二作者：An Enhanced Transportation Mode Detection Method Based on GPS Data. International Conference of Pioneering Computer Scientists, Engineers and Educators. Springer, Singapore, 2017: pp.605-620. 
 
 # 科研项目：
 项目负责人. 四川省科技厅-苗子工程：用户交通工具识别系统研究与实现，项目编号：2017011，2017/08-2018/08.
